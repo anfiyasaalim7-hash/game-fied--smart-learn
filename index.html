@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Learn – Gamified Learning Demo</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121b2e; --muted:#8aa1c0; --accent:#6ae3ff; --accent2:#8fff6a; --danger:#ff6a6a; --gold:#ffd166;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;background:linear-gradient(120deg,#0b1220 0%,#0f1a33 100%);color:#e6f0ff}
+    header{position:sticky;top:0;z-index:5;background:rgba(11,18,32,.8);backdrop-filter:blur(8px);border-bottom:1px solid #1f2a44}
+    .nav{max-width:1080px;margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 16px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+    .brand .logo{width:36px;height:36px;border-radius:10px;background:radial-gradient(circle at 30% 30%,var(--accent),var(--accent2));box-shadow:0 0 20px #6ae3ff55 inset}
+    .links a{color:#d8e6ff;text-decoration:none;margin:0 8px;padding:8px 10px;border-radius:10px}
+    .links a.active,.links a:hover{background:#17203a}
+
+    .wrap{max-width:1080px;margin:20px auto;padding:0 16px 64px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .card{background:var(--card);border:1px solid #1e2a46;border-radius:16px;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+    .card h3{margin:0 0 8px}
+    .muted{color:var(--muted)}
+    .tag{display:inline-block;padding:4px 10px;border:1px solid #274267;border-radius:999px;color:#a9c7ff;margin-right:6px;font-size:12px}
+
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center}
+    @media (max-width:900px){.hero{grid-template-columns:1fr;}}
+    .kpi{display:flex;gap:8px;align-items:center}
+    .kpi strong{font-size:22px}
+
+    .progress{height:10px;background:#0e1630;border-radius:999px;overflow:hidden;border:1px solid #203055}
+    .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0}
+
+    /* Quiz */
+    .quiz h4{margin:0 0 6px}
+    .opt{display:block;padding:10px 12px;margin:8px 0;border:1px solid #2a3c66;border-radius:12px;background:#0f1730;cursor:pointer}
+    .opt.correct{border-color:#2e995a;background:#10281e}
+    .opt.wrong{border-color:#994242;background:#281818}
+    .quiz .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    button{background:linear-gradient(135deg,#2563eb,#22d3ee);border:none;color:#001425;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    button.secondary{background:#1a2848;color:#cfe3ff;border:1px solid #2b3e6a}
+    button:disabled{opacity:.5;cursor:not-allowed}
+
+    .pill{display:inline-flex;gap:8px;align-items:center;background:#132243;border:1px solid #28406f;color:#a9c7ff;padding:6px 10px;border-radius:999px}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#1c2b52;border:1px solid #2c4a87;border-radius:12px;padding:8px 10px;margin:6px 6px 0 0}
+    .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:10px;border-bottom:1px solid #263759;text-align:left}
+    .table tr:hover{background:#14224a}
+
+    footer{margin:40px 0 0;text-align:center;color:#7fa8ff}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand"><span class="logo"></span> Smart Learn</div>
+      <nav class="links">
+        <a href="#home" class="active">Home</a>
+        <a href="#quiz">Quiz</a>
+        <a href="#badges">Badges</a>
+        <a href="#leaderboard">Leaderboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Hero / Intro -->
+    <section id="home" class="card hero">
+      <div>
+        <h1>Gamified Learning – Learn like a Game 🎮</h1>
+        <p class="muted">Answer quizzes, earn points, unlock badges, and level up. This mini prototype shows how your idea can work on the web.</p>
+        <div class="kpi">
+          <span class="pill"><strong id="level">Level 1</strong></span>
+          <span class="pill">XP: <strong id="xp">0</strong></span>
+          <span class="pill">Badges: <strong id="badgeCount">0</strong></span>
+        </div>
+        <div style="margin-top:10px">
+          <div class="progress"><span id="xpBar"></span></div>
+          <small class="muted">Gain 100 XP to reach next level.</small>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="tag">Syllabus-based</span>
+          <span class="tag">AI Feedback</span>
+          <span class="tag">Offline-ready (future)</span>
+          <span class="tag">Teacher Dashboard</span>
+        </div>
+      </div>
+      <div class="card" style="min-height:220px">
+        <h3 style="margin-top:0">How it works</h3>
+        <ol>
+          <li>Pick a topic and take the quiz.</li>
+          <li>Get instant feedback and XP.</li>
+          <li>Unlock badges at milestones.</li>
+          <li>Climb the leaderboard with friends.</li>
+        </ol>
+        <div style="margin-top:10px">
+          <button onclick="scrollToEl('#quiz')">Start a Quiz</button>
+          <button class="secondary" onclick="resetAll()">Reset Progress</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section id="quiz" class="card quiz">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 style="margin:0">Quick Quiz – Newton's Laws</h3>
+        <div class="pill">Score: <strong id="score">0</strong></div>
+      </div>
+      <div id="qWrap"></div>
+      <div class="footer">
+        <button id="nextBtn" disabled>Next</button>
+        <div class="muted" id="feedback">Select an option to continue…</div>
+      </div>
+    </section>
+
+    <!-- Badges -->
+    <section id="badges" class="card">
+      <h3>Badges</h3>
+      <div id="badgeList"></div>
+      <small class="muted">Earn badges by scoring high or keeping streaks.</small>
+    </section>
+
+    <!-- Leaderboard -->
+    <section id="leaderboard" class="card">
+      <h3>Leaderboard</h3>
+      <table class="table" id="board">
+        <thead><tr><th>#</th><th>Name</th><th>XP</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <footer>Built for demo – Saalim's Smart Learn concept</footer>
+  </main>
+
+  <script>
+    // -------- State --------
+    const state = {
+      level: 1,
+      xp: 0,
+      score: 0,
+      qIndex: 0,
+      badges: [],
+      answered: false
+    };
+
+    const questions = [
+      { q: "Newton's 1st law is also called?", opts:["Law of Acceleration","Law of Inertia","Action-Reaction","Gravitation"], ans:1 },
+      { q: "F = m × a belongs to which law?", opts:["1st law","2nd law","3rd law","None"], ans:1 },
+      { q: "Every action has an equal and opposite reaction — this is?", opts:["1st law","2nd law","3rd law","Zeroth law"], ans:2 },
+    ];
+
+    // -------- Helpers --------
+    function $(sel){return document.querySelector(sel)}
+    function el(tag, cls){const e=document.createElement(tag); if(cls) e.className=cls; return e}
+    function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+
+    function updateHeader(){
+      $('#xp').textContent = state.xp;
+      $('#score').textContent = state.score;
+      $('#level').textContent = `Level ${state.level}`;
+      $('#badgeCount').textContent = state.badges.length;
+      const pct = clamp((state.xp % 100),0,100);
+      $('#xpBar').style.width = pct + '%';
+    }
+
+    function addXP(amount){
+      const before = state.xp;
+      state.xp += amount;
+      if (Math.floor(before/100) < Math.floor(state.xp/100)){
+        state.level++;
+        toast(`Level Up! You are now Level ${state.level} ✨`);
+        ensureBadge('Level Starter','Reached Level 2');
+      }
+      updateHeader();
+      rebuildBoard();
+    }
+
+    function ensureBadge(name, desc){
+      if (!state.badges.find(b=>b.name===name)){
+        state.badges.push({name,desc});
+        renderBadges();
+        toast(`Badge Unlocked: ${name} 🏅`);
+      }
+    }
+
+    function toast(msg){
+      const t = el('div');
+      t.textContent = msg;
+      t.style.position='fixed'; t.style.bottom='16px'; t.style.left='50%'; t.style.transform='translateX(-50%)';
+      t.style.background='#132243'; t.style.border='1px solid #28406f'; t.style.padding='10px 14px'; t.style.borderRadius='12px'; t.style.zIndex=10;
+      document.body.appendChild(t); setTimeout(()=>t.remove(),2000);
+    }
+
+    function scrollToEl(sel){document.querySelector(sel).scrollIntoView({behavior:'smooth'})}
+
+    // -------- Quiz UI --------
+    const qWrap = $('#qWrap');
+    const nextBtn = $('#nextBtn');
+
+    function renderQuestion(){
+      nextBtn.disabled = true; $('#feedback').textContent = 'Select an option to continue…';
+      state.answered = false;
+      const q = questions[state.qIndex];
+      qWrap.innerHTML = '';
+      const h = el('h4'); h.textContent = `Q${state.qIndex+1}. ${q.q}`; qWrap.appendChild(h);
+      q.opts.forEach((txt,i)=>{
+        const opt = el('button','opt'); opt.type='button'; opt.textContent = txt; opt.addEventListener('click',()=>select(i)); qWrap.appendChild(opt);
+      });
+    }
+
+    function select(i){
+      if(state.answered) return; state.answered = true;
+      const q = questions[state.qIndex];
+      const nodes = qWrap.querySelectorAll('.opt');
+      nodes.forEach((n,idx)=>{
+        n.disabled = true;
+        if(idx===q.ans){ n.classList.add('correct') }
+        if(idx===i && i!==q.ans){ n.classList.add('wrong') }
+      });
+      if(i===q.ans){
+        state.score += 10; addXP(40); $('#feedback').textContent = 'Correct! +10 score, +40 XP';
+        if(state.score>=20) ensureBadge('Physics Rookie','Scored 20+ in Physics quiz');
+      } else {
+        $('#feedback').textContent = 'Not quite. Review and try the next one!';
+      }
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click',()=>{
+      state.qIndex++;
+      if(state.qIndex>=questions.length){
+        $('#feedback').textContent = 'Quiz complete! Try again to improve your score.';
+        ensureBadge('Quiz Finisher','Completed a quiz');
+        state.qIndex = 0; state.score = 0; // restart for demo
+      }
+      renderQuestion();
+    });
+
+    // -------- Badges --------
+    function renderBadges(){
+      const root = $('#badgeList'); root.innerHTML='';
+      if(state.badges.length===0){ root.innerHTML = '<span class="muted">No badges yet. Win some by playing!</span>'; return; }
+      state.badges.forEach(b=>{
+        const it = el('span','badge'); it.innerHTML = `<span class="dot"></span><strong>${b.name}</strong> — <span class="muted">${b.desc}</span>`; root.appendChild(it);
+      });
+    }
+
+    // -------- Leaderboard --------
+    const boardData = [
+      {name:'Aisha', xp: 180},
+      {name:'Rahul', xp: 140},
+      {name:'Meera', xp: 120},
+    ];
+
+    function rebuildBoard(){
+      const tbody = document.querySelector('#board tbody');
+      const merged = [...boardData.filter(p=>p.name!=="You"), {name:'You', xp: state.xp}]
+        .sort((a,b)=>b.xp-a.xp).slice(0,8);
+      tbody.innerHTML = '';
+      merged.forEach((p,idx)=>{
+        const tr = el('tr'); tr.innerHTML = `<td>${idx+1}</td><td>${p.name}</td><td>${p.xp}</td>`; tbody.appendChild(tr);
+      });
+    }
+
+    // -------- Reset --------
+    function resetAll(){
+      state.level = 1; state.xp = 0; state.score = 0; state.badges = []; state.qIndex=0; updateHeader(); renderBadges(); rebuildBoard(); renderQuestion();
+      toast('Progress reset');
+    }
+
+    // Expose to buttons
+    window.resetAll = resetAll; window.scrollToEl = scrollToEl;
+
+    // Init
+    updateHeader(); renderQuestion(); renderBadges(); rebuildBoard();
+  </script>
+</body>
+</html>
